@@ -255,7 +255,7 @@ class MyClient(discord.Client):
                 await asyncio.sleep(10.0)
             new_txes = await get_logs_from_db(duration=config['token']['life_tx_duration'])
             if len(new_txes) > 0:
-                get_notified = await get_logs_notified(duration=config['token']['life_tx_duration'])
+                get_notified = await get_logs_notified(duration=config['token']['life_tx_duration'] * 2)
                 existing_notified = []
                 if len(get_notified) > 0:
                     existing_notified = [i['transaction_hash'] for i in get_notified]
@@ -274,22 +274,22 @@ class MyClient(discord.Client):
                     # insert to notify table
                     emoji_tx = "🦐"
                     div_amount = 1
-                    if real_amount > 10**6:
+                    if real_amount >= 10**6:
                         emoji_tx = "🐋"
                         div_amount = 10**6
-                    elif real_amount > 10**5:
+                    elif real_amount >= 10**5:
                         emoji_tx = "🦈"
                         div_amount = 10**5
-                    elif real_amount > 10**4:
+                    elif real_amount >= 10**4:
                         emoji_tx = "🐙"
                         div_amount = 10**4
-                    elif real_amount > 10**3:
+                    elif real_amount >= 10**3:
                         emoji_tx = "🦑"
                         div_amount = 10**3
-                    elif real_amount > 10**2:
+                    elif real_amount >= 10**2:
                         emoji_tx = "🦞"
                         div_amount = 10**2
-                    elif real_amount > 10:
+                    elif real_amount >= 10:
                         emoji_tx = "🦀"
                     numb_emojis = int(real_amount/div_amount) * emoji_tx
                     embed = discord.Embed(
@@ -324,7 +324,7 @@ class MyClient(discord.Client):
                     )
                     embed.add_field(
                         name="Sender / Receiver",
-                        value="[Sender]({}{}) / [Reciver]({}{})".format(
+                        value="[Sender]({}{}) / [Receiver]({}{})".format(
                             config['token']['prefix_address'], i['topic1'],
                             config['token']['prefix_address'], i['topic2'],
                         ),
