@@ -1,0 +1,32 @@
+[mysql]
+host = "localhost"
+port = 3306
+user = "username"
+password = "password"
+db = "dbname"
+
+[discord]
+token = "your discord token"
+sleep = 60.0
+network = "bsc" # can be bsc, eth, etc. Check https://api.geckoterminal.com/docs/index.html
+notified_tx_channel = channel_ID # change this
+
+[node]
+rpc = "http://remote node with port" # change this
+oldest_block = 27527654 # change this. Block you want to start from
+last_block_file = "./LAST_BLOCK" path to save last block to
+lap_blocks = 100
+delay_block = 5
+contracts = ["0x939255bf261BB42fE6490dB9D95b97b2265653da"] # change this.
+
+[token]
+name = "BTIPZ"
+emoji = "<a:TB_BTIPZ:1095224338665439242>"
+emoji_link = "https://cdn.discordapp.com/emojis/1095224338665439242.gif"
+decimal = 12
+contract = "0x939255bf261BB42fE6490dB9D95b97b2265653da" # change this
+prefix_tx = "https://bscscan.com/tx/"
+prefix_address = "https://bscscan.com/address/"
+fetch_sleep = 5.0
+life_tx_duration = 7200
+tipbot_address = "0x750aeeb0f5c3386530f077b7168cc21da5b82d79" # change this if you need for something else
