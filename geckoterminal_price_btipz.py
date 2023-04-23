@@ -58,8 +58,9 @@ async def get_logs_from_db(duration: int=3600):
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
                 sql = """
-                SELECT * FROM `btipz_getlogs` 
+                SELECT *, SUM(CONV(SUBSTRING_INDEX(`data`, "x", -1), 16, 10)) AS `amount` FROM `btipz_getlogs` 
                 WHERE `block_timestamp`>%s
+                GROUP BY `address`, `transaction_hash`, `topic0`, `topic2`
                 ORDER BY `block_number` ASC
                 """
                 await cur.execute(sql, lap)
@@ -266,7 +267,7 @@ class MyClient(discord.Client):
                     # not transfer
                     if i['topic0'] != "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
                         continue
-                    real_amount = Decimal(int(i['data'], 16)/10**config['token']['decimal'])
+                    real_amount = Decimal(i['amount']/10**config['token']['decimal'])
                     if real_amount < 0.01:
                         continue
                     # get channel
