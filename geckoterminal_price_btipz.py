@@ -50,6 +50,24 @@ async def insert_logs(records):
         traceback.print_exc(file=sys.stdout)
     return False
 
+async def get_last_logs_from_db():
+    global pool
+    try:
+        await open_connection()
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                sql = """
+                SELECT * FROM `btipz_getlogs` 
+                ORDER BY `block_number` DESC LIMIT 1
+                """
+                await cur.execute(sql, )
+                result = await cur.fetchone()
+                if result:
+                    return result
+    except Exception:
+        traceback.print_exc(file=sys.stdout)
+    return None
+
 async def get_logs_from_db(duration: int=3600):
     global pool
     try:
@@ -348,8 +366,14 @@ class MyClient(discord.Client):
                 # check if file exist
                 path = Path(config['node']['last_block_file'])
                 if path.is_file():
-                    text_file = open(config['node']['last_block_file'], "r")
-                    block_num = int(text_file.read().strip()) + 1
+                    try:
+                        text_file = open(config['node']['last_block_file'], "r")
+                        block_num = int(text_file.read().strip()) + 1
+                    except ValueError:
+                        # file error, check in DB
+                        last_height = await get_last_logs_from_db()
+                        if last_height is not None:
+                            block_num = last_height['block_number'] + 1
                 else:
                     block_num = config['node']['oldest_block']
                 current_block_num = await get_current_block(config['node']['rpc'], timeout=30)
@@ -461,6 +485,8 @@ class MyClient(discord.Client):
                             selected_price = token_price_usd
                         if i_lp > 0.0:
                             lp_all += i_lp
+                if selected_price == 0:
+                    continue
                 price_usd = "$ {:,.8f}".format(selected_price)
                 for guild in self.guilds:
                     me = guild.me
@@ -479,7 +505,7 @@ class MyClient(discord.Client):
                         traceback.print_exc(file=sys.stdout)
             except Exception as e:
                 traceback.print_exc(file=sys.stdout)
-            await sleep(config['discord']['sleep'])
+        await sleep(config['discord']['sleep'])
 
 intents = discord.Intents.default()
 client = MyClient(intents=discord.Intents.default())
